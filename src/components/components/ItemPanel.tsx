@@ -38,12 +38,13 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
 
     public render() {
         return (
-            <div style={{ width: '250px', height: '200px', display: 'inline-block' }}>
-                <ul>
-                    {this.state.source.map((item, index) => {
-                        return <li key={index}>{item.label}</li>
-                    })}
-                </ul>
+            <div className="scrollable" style={{ width: '250px', height: '200px', display: 'inline-block' }}>
+                {this.state.source.length === 0 ? <div>no item to display</div> :
+                    <ul>
+                        {this.state.source.map((item, index) => {
+                            return <li key={index} onClick={this.setActiveOrInactive}>{item.label}  {item.active ? 'X' : ''}</li>
+                        })}
+                    </ul>}
             </div>
         );
     }
@@ -51,7 +52,9 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
     public addSourceComponent: any = (items: IPanelItem[]) => {
         const currentArray = this.state.source;
         items.forEach(item => {
-            currentArray.push(item);
+            if (!currentArray.some(x => items.some(y => y.value === x.value))) {
+                currentArray.push(item);
+            }
         });
         this.setState({
             source: currentArray
@@ -62,18 +65,15 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
         if (this.state.source.length <= 0) { return; }
 
         const targetIndexes = new Array<number>();
+        const selectedItems = this.state.source.filter(x => items.find(y => y.value === x.value))
+        const tempList = this.state.source;
 
-        const t = this.state.source.filter(x => items.find(y => y.value === x.value))
-
-        t.forEach(item => {
-            // tslint:disable-next-line:no-console
-            console.log(item);
+        selectedItems.forEach(item => {
             if (this.state.source.find(x => x.value === item.value) !== undefined) {
                 targetIndexes.push(this.state.source.indexOf(item))
             }
         });
 
-        const tempList = this.state.source;
         targetIndexes.forEach(x => {
             tempList.splice(x, 1);
         });
@@ -82,5 +82,19 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
             source: tempList
         });
 
+    }
+
+    public setActiveOrInactive: any = (selectedItem: any) => {
+        const selectedOption = selectedItem.target.outerText;
+        const tempArray = this.state.source;
+        const selectedValue = tempArray.find((x: any) => x.label === selectedOption);
+        if (selectedValue === undefined) { return; }
+        const selectedIndex = tempArray.indexOf(selectedValue);
+        selectedValue.active = !selectedValue.active;
+        tempArray.splice(selectedIndex, 1, selectedValue);
+
+        this.setState({
+            source: tempArray
+        });
     }
 }

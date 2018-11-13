@@ -56,3 +56,8 @@ ul li.checked::before {
   height: 15px;
   width: 7px;
 }
+
+.scrollable {
+  height: 100px;
+  overflow-y: scroll;
+}
