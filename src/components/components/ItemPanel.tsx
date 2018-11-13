@@ -8,6 +8,7 @@ export interface IItemPanelProps {
 
 interface IItemPanelState {
     source: IPanelItem[];
+    anySelected: boolean;
 }
 
 export interface IPanelItem {
@@ -21,15 +22,13 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
     constructor(props: IItemPanelProps) {
         super(props)
         this.state = {
-            source: this.props.source
+            anySelected: false,
+            source: this.props.source,
         }
     }
 
     public componentDidMount() {
-
         this.props.onRef(this);
-        // tslint:disable-next-line:no-console
-        console.log(this.props.onRef);
     }
 
     public componentWillUnmount() {
@@ -56,6 +55,9 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
                 currentArray.push(item);
             }
         });
+
+        currentArray.forEach(x => x.active= false);
+
         this.setState({
             source: currentArray
         });
@@ -78,6 +80,7 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
             tempList.splice(x, 1);
         });
 
+
         this.setState({
             source: tempList
         });
@@ -94,7 +97,8 @@ export default class ItemPanel extends React.Component<IItemPanelProps, IItemPan
         tempArray.splice(selectedIndex, 1, selectedValue);
 
         this.setState({
-            source: tempArray
+            anySelected:tempArray.length > 1,
+            source: tempArray,
         });
     }
 }
